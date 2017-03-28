@@ -1,3 +1,4 @@
+#!python2
 import games
 import time
 from move import Move
