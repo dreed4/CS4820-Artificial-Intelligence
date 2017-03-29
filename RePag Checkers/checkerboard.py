@@ -25,10 +25,12 @@ class CheckerBoard(object):
         
         for row in range(rows):
             print(self.board[row])
-    def getmoves(self, piece):
+    def getsuccessors(self, piece):
         print("getting moves")
         # need to determine a standard for the "description" of a piece
         # maybe a tuple like (coords, king=true/false) ?
+        
+        #similar to below, evaluate jumps first
         
         #if king, we know we can move forward or backward
             #if space is on board
@@ -36,7 +38,11 @@ class CheckerBoard(object):
                     #our piece, can't move there
                     
                     #not our piece, see if we can jump (next diagonal must be empty)
-                
+                    
+                    #if we jumped, we need to reevaluate to see if we can jump again with this piece
+                    # HAS to jump again if possible
+                    
+                    
                 #if space not occupied, can move there
             
             
@@ -48,5 +54,18 @@ class CheckerBoard(object):
                     #not our piece, see if we can jump (next diagonal must be empty)
                 
                 #if space not occupied, can move there
-    def movepiece(self, piece):
+                
+        #return new boards with piece moved where it can move
+        
+        #
+    def movepiece(self, piece, newcoord):
+        print()
+        
+    def isgoal(self):
+        #find out if this board is a goal
+        #if either color is not on board, it is a goal with opposite color as winner
+        
+    
+        
+    
         

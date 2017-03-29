@@ -5,6 +5,14 @@ Created on March 29, 2017
 '''
 from checkerboard import CheckerBoard
 
+
+    
+def evalutatesuccessors (evalfn):
+    print()
+    
+    
+    
+    
 # Generate new board
 # 0: empty
 # 1: black
@@ -27,8 +35,24 @@ def geninitcheckerboard ():
     newboard.printboard()
     
     return newboard
+
+def graphsearch (rootnode, blacksearchtype, redsearchtype):
+    #loop to itarate back and forth for each player
+    # red black red black etc
+    #check if goal
+    
+    #each iteration, call getsuccessors
+    
+    #each iteration, evaluate successors
+    
+    #make move
+    print()
+    
 def main ():
     newboard = geninitcheckerboard()
+    
+    
+    
     
 main()
     
