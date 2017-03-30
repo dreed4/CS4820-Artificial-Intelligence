@@ -31,8 +31,25 @@ def geninitcheckerboard ():
             [0,3,0,3,0,3,0,3],
             [3,0,3,0,3,0,3,0]]
     
+    arry = [[0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
+            [0,0,3,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [3,0,3,0,3,0,3,0],
+            [0,3,0,3,0,3,0,3],
+            [3,0,3,0,3,0,3,0]]
+    
+    arry = [[0,0,0,0,0,0,0,0],
+            [0,0,0,3,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,3,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0]]
+    
     newboard = CheckerBoard(arry)
-    newboard.printboard()
     
     return newboard
 
@@ -50,6 +67,13 @@ def graphsearch (rootnode, blacksearchtype, redsearchtype):
     
 def main ():
     newboard = geninitcheckerboard()
+    print("")
+    newboard.printboard()
+    successors = newboard.getsuccessors("black")
+    print (successors)
+    for s in successors:
+        print("")
+        s.printboard()
     
     
     
