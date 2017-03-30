@@ -51,7 +51,7 @@ class CheckerBoard(object):
         jumps = []
         row = piece[0]
         column = piece[1]
-        #set color
+        #set color of current piece
         if self.board[row][column] == 1 or self.board[row][column] == 2:
             color = "black"
             oppcolor = "red"
@@ -108,14 +108,16 @@ class CheckerBoard(object):
             elif c > cols or c < 0:
                 toremove.append(m)
         
+        #remove impossible or illegal
         for rem in toremove:
             potentialmoves.remove(rem)
         
         for m in potentialmoves:
             r = m[0]
             c = m[1]
-            mcolor = 0
+            mcolor = None
             
+            #if this position is >0 we KNOW there is a piece here
             if self.board[r][c] > 0:
                 if self.board[r][c] <= 2:
                     mcolor = "black"
@@ -126,21 +128,21 @@ class CheckerBoard(object):
             if mcolor == oppcolor:
                 
                 #if next space empty, do jump, make board
-                middlerow = m[0] + (m[0] - piece[0])
-                middlecol = m[1] + (m[1] - piece[1])
+                finalrow = m[0] + (m[0] - piece[0])
+                finalcol = m[1] + (m[1] - piece[1])
                 
-                middlecoord = [middlerow, middlecol]
-               
-                #check if it's occupied
-                if self.board[middlerow][middlecol] == 0:
-                    
-                    
-                    jumps.append(middlecoord)
+                finalcoord = [finalrow, finalcol]
+                
+                
+                
+                #check if jump will be in bounds
+                if finalrow < 7 and finalrow > 0 and finalcol < 7 and finalcol > 0:
+                    #check if jump space is empty
+                    if self.board[finalrow][finalcol] == 0:
+                        jumps.append(finalcoord)
                     
         #loop through all jumps, create new boards
         jumpedstates = []
-        print ("jumps: ", jumps)
-        print ("jumps len: ", len(jumps))
         
         #for all jumps
             #move piece
@@ -257,7 +259,6 @@ class CheckerBoard(object):
     def movepiece(self, piece, newcoord, jump):
         piecerow=piece[0]
         piececol=piece[1]
-        print("movepiece called..")
         if self.board[piecerow][piececol] == 1 or self.board[piecerow][piececol] == 2:
             color = "black"
         elif self.board[piecerow][piececol] == 3 or self.board[piecerow][piececol] == 4:
@@ -265,8 +266,6 @@ class CheckerBoard(object):
             
         newrow=newcoord[0]
         newcol=newcoord[1]
-        print("piece: ", piece)
-        print("newcoord: ", newcoord)
         
         newboard = copy.deepcopy(self.board)
         oldboard = copy.deepcopy(self.board)
@@ -278,9 +277,6 @@ class CheckerBoard(object):
             #first get coord of jumped piece
             jpiecerow = int((newrow - piecerow)/2 + piecerow) 
             jpiececol = int((newcol - piececol)/2 + piececol)
-            print("jpiecerow: ", jpiecerow)
-            print("jpiececol: ", jpiececol)
-            print("")
             newboard[jpiecerow][jpiececol] = 0
         else:
             #turn to king or not????????
@@ -304,7 +300,23 @@ class CheckerBoard(object):
         
         newboardobj = CheckerBoard(newboard)
         return newboardobj
+    def getwinner(self):
+        blacks = getcolorpieces("black")
+        reds = getcolorpieces("red")
+        if self.isgoal() == True:
+            if len(blacks) > 0:
+                return ("black")
+            else:
+                return ("red")
     def isgoal(self):
         #find out if this board is a goal
         #if either color is not on board, it is a goal with opposite color as winner
-        print()
+        blacks = self.getcolorpieces("black")
+        reds = self.getcolorpieces("red")
+        
+        if len(blacks) == 0:
+            return True
+        elif len(reds) == 0:
+            return True
+        else:
+            return False
