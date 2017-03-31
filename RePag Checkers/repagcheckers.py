@@ -65,7 +65,7 @@ def getminimaxscore(successor, prevscore):
     
     return finalscore
 
-def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore):
+def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore, alpha, beta):
     if maxicolor == "black":
         mincolor = "red"
     elif maxicolor == "red":
@@ -76,7 +76,9 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         return (successor, math.inf)
     
     if depth == maxdepth:
-        return (successor,successorscore)
+        if successorscore < beta:
+            beta = successorscore
+        return (successor,successorscore,beta)
     
     successors = successor.getsuccessors(mincolor)
     
@@ -93,20 +95,31 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         if totaltime >= maxtime:
             return (bestsuccessor, sscore)
         
-        score = maxplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore)[1]
+        maxplayreturn = maxplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore,alpha, beta)
+        score = maxplayreturn[1]
+        
+        if score < beta:
+            beta = score
+            
         
         if score < bestscore:
             bestsuccessor = s
             bestscore = score
         
+        if alpha < beta:
+            break
+        
     return (successor, bestscore)
         
-def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore):
+def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore, alpha, beta):
     successorscore = getminimaxscore(successor, prevscore)
+    
     if successor.isgoal() == True:
         return (successor, -math.inf)
     
     if depth == maxdepth:
+        #if successorscore > alpha:
+        #    alpha = successorscore
         return (successor,successorscore)
     
     successors = successor.getsuccessors(maxicolor)
@@ -127,13 +140,23 @@ def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscor
         if totaltime >= maxtime:
             return (bestsuccessor, sscore)
         
-        score = minplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore)[1]
+        #set a
+        
+        
+        minplayreturn = minplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore, alpha, beta)
+        score = minplayreturn[1]
+        if score > alpha:
+            alpha = score
+        
         
         if score > bestscore:
             bestsuccessor = s
             bestscore = score
+            
+        if alpha > beta:
+            break
         
-    return (successor, bestscore)
+    return (successor, bestscore, alpha)
     
 def minimax(node, maxdepth, maxicolor, maxtime, starttime):
     
@@ -148,8 +171,12 @@ def minimax(node, maxdepth, maxicolor, maxtime, starttime):
     bestsuccessor = successors[0]
     bestscore = -math.inf
     depth = 0
+    
+    alpha = -math.inf
+    beta = math.inf
+    
     for successor in successors:
-        score = minplay(successor, depth+1, maxdepth, maxicolor, maxtime, starttime, nodescore)[1]
+        score = minplay(successor, depth+1, maxdepth, maxicolor, maxtime, starttime, nodescore, alpha, beta)[1]
         if score > bestscore:
             bestsuccessor = successor
             bestscore = score
@@ -174,7 +201,8 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
     
     return bestboard
 def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime):
-    currentplayer = "red"
+    #first move player
+    currentplayer = "black"
     board = rootnode
     goal = False
     stillplaying = True
