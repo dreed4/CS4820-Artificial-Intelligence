@@ -7,7 +7,7 @@ from checkerboard import CheckerBoard
 
 import math
 import time
-
+from checkergui import *
 def evalutatesuccessors (evalfn):
     print()
     
@@ -66,6 +66,7 @@ def getminimaxscore(successor, prevscore):
     return finalscore
 
 def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore, alpha, beta):
+    
     if maxicolor == "black":
         mincolor = "red"
     elif maxicolor == "red":
@@ -107,13 +108,13 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
             bestscore = score
         
         if alpha < beta:
+            
             break
         
     return (successor, bestscore)
         
 def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore, alpha, beta):
     successorscore = getminimaxscore(successor, prevscore)
-    
     if successor.isgoal() == True:
         return (successor, -math.inf)
     
@@ -154,6 +155,7 @@ def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscor
             bestscore = score
             
         if alpha > beta:
+            
             break
         
     return (successor, bestscore, alpha)
@@ -200,7 +202,7 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
         
     
     return bestboard
-def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime):
+def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime,guiboard):
     #first move player
     currentplayer = "black"
     board = rootnode
@@ -221,6 +223,14 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
         
         board.printboard()
         print("")
+        
+        #update the gui here
+        guiboard.setarry(board.board)
+        guiboard.redraw()
+        #guiboard.run()
+        
+        #######
+        
         if board.isgoal() == True:
             goal = True
             stillplaying = False
@@ -237,9 +247,32 @@ def test ():
         print("")
         s.printboard()
     
+def initgui():
+    size = 40
+    #(width,height,cellsize)
+    #board = Board_Threaded(400,400,size)
+    arry = [[0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [3,0,3,0,3,0,3,0],
+            [0,3,0,3,0,3,0,3],
+            [3,0,3,0,3,0,3,0]]
+    #board = BetterBoard(400,400,size, arry)
+    board = Board_wait(400,400,size,arry)
+    
+    
+    
+    #for (i, j) in product(range(8), range(8)):
+        
+    return board   
     
     
 def checkersgame():
+    #init gui stuff first
+    guiboard = initgui()
+    
     rootarry = [[0,1,0,1,0,1,0,1],
                 [1,0,1,0,1,0,1,0],
                 [0,1,0,1,0,1,0,1],
@@ -258,6 +291,7 @@ def checkersgame():
     redsearchtype = id
     redaitype = minimax
     maxdepth = 20
-    graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime)
+    graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,guiboard)
+    
 checkersgame()
     

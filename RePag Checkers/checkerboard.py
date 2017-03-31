@@ -8,6 +8,11 @@ from copy import deepcopy
 class CheckerBoard(object):
     def __init__(self, arry):
         self.board = arry
+    def setdepth(self, depth):
+        self.depth = depth
+    
+    def getdepth(self):
+        return self.getdepth()
     
     def printboard(self):
         #iterate through and print nicely
