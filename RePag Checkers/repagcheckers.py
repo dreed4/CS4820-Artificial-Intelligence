@@ -8,6 +8,7 @@ from checkerboard import CheckerBoard
 import math
 import time
 from checkergui import *
+import queue
 def evalutatesuccessors (evalfn):
     print()
     
@@ -202,10 +203,11 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
         
     
     return bestboard
-def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime,guiboard):
+def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime,q):
     #first move player
     currentplayer = "black"
     board = rootnode
+    q.put(board.board)
     goal = False
     stillplaying = True
     #loop to iterate back and forth for each player
@@ -220,14 +222,13 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
             maxicolor = "red"
             board = redsearchtype(board, maxdepth, maxicolor, redaitype,maxtime)
             currentplayer = "black"
-        
+        q.put(board.board)
         board.printboard()
         print("")
         
-        #update the gui here
-        guiboard.setarry(board.board)
-        guiboard.redraw()
-        #guiboard.run()
+        #update the gui queue here
+        
+        
         
         #######
         
@@ -269,9 +270,10 @@ def initgui():
     return board   
     
     
-def checkersgame():
+def checkersgame(q):
     #init gui stuff first
-    guiboard = initgui()
+   
+    #guiboard = initgui()
     
     rootarry = [[0,1,0,1,0,1,0,1],
                 [1,0,1,0,1,0,1,0],
@@ -291,7 +293,8 @@ def checkersgame():
     redsearchtype = id
     redaitype = minimax
     maxdepth = 20
-    graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,guiboard)
-    
-checkersgame()
+    graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,q)
+
+#print("calling repagcheckers file outside")
+#checkersgame(q=None)
     
