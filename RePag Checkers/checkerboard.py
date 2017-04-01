@@ -87,7 +87,7 @@ class CheckerBoard(object):
             
         #if red
         elif color == "red":
-           # do forward moves
+            # do forward moves
             #row+1, column-1
             potentialmoves.append([row-1, column-1])
             #row+1, column+1
@@ -211,7 +211,7 @@ class CheckerBoard(object):
             
         #if red
         elif color == "red":
-           # do forward moves
+            # do forward moves
             #row+1, column-1
             potentialmoves.append([row-1, column-1])
             #row+1, column+1
@@ -306,8 +306,8 @@ class CheckerBoard(object):
         newboardobj = CheckerBoard(newboard)
         return newboardobj
     def getwinner(self):
-        blacks = getcolorpieces("black")
-        reds = getcolorpieces("red")
+        blacks = self.getcolorpieces("black")
+        reds = self.getcolorpieces("red")
         if self.isgoal() == True:
             if len(blacks) > 0:
                 return ("black")
@@ -319,9 +319,21 @@ class CheckerBoard(object):
         blacks = self.getcolorpieces("black")
         reds = self.getcolorpieces("red")
         
-        if len(blacks) == 0:
+        if len(blacks) == 0 or len(reds) == 0:
             return True
-        elif len(reds) == 0:
-            return True
+        #else we need to check and see if either team has pieces that can't move
         else:
-            return False
+            redmoves = []
+            for r in reds:
+                redmoves.extend(self.getmoves(r))
+            
+            blackmoves = []
+            for b in blacks:
+                blackmoves.extend(self.getmoves(b))
+                
+            if len(redmoves) == 0:
+                return True
+            elif len(blackmoves) == 0:
+                return True
+            else:
+                return False

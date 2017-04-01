@@ -222,21 +222,20 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
             maxicolor = "red"
             board = redsearchtype(board, maxdepth, maxicolor, redaitype,maxtime)
             currentplayer = "black"
+        
+        #update the gui queue here
         q.put(board.board)
+        #=============
+        
         board.printboard()
         print("")
         
-        #update the gui queue here
-        
-        
-        
-        #######
-        
         if board.isgoal() == True:
             goal = True
+            winner = board.getwinner()
             stillplaying = False
             
-    return board
+    return (board, winner)
     
 def test ():
     newboard = geninitcheckerboard()
@@ -286,15 +285,19 @@ def checkersgame(q):
     
     rootnode = CheckerBoard(rootarry)
     
-    maxtime = 5
+    maxtime = 2
     
     blacksearchtype = id
     blackaitype = minimax
     redsearchtype = id
     redaitype = minimax
     maxdepth = 20
-    graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,q)
-
+    endgame = graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,q)
+    finalboard = endgame[0]
+    winner = endgame[1]
+    
+    print("Game is over. The winner is ", winner, " and the final board configuration is: ")
+    finalboard.printboard()
 #print("calling repagcheckers file outside")
 #checkersgame(q=None)
     

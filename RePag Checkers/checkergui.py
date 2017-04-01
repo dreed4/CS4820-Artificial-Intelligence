@@ -113,6 +113,7 @@ class Gui:
                 cell = logicBoard[r][c]
                 kingme = False
                 if cell != 0:
+                    kingme = False
                     if cell <= 2:
                         pawnColor = "blue"
                         if cell == 2:
@@ -125,7 +126,9 @@ class Gui:
                             kingme = True
                     self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
                     if kingme == True:
+                        #sort gui out for kinging things
                         
+                        pass
                     self.canvas.pack()
                     
         self.root.update()
@@ -152,15 +155,41 @@ class Gui:
                     
                 cell = logicBoard[r][c]
                 if cell != 0:
-                    pawnColor = "blue" if cell <= 2  else "red"
+                    kingme = False
+                    if cell <= 2:
+                        pawnColor = "blue"
+                        if cell == 2:
+                            #then it's a king
+                            kingme = True
+                    else:
+                        pawnColor = "red"
+                        if cell == 4:
+                            #then it's a king
+                            kingme = True
                     self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
+                    if kingme == True:
+                        #sort gui out for kinging things
+                        #we need the circle to be a bit smaller than the first
+                        #if we want 50% of the size we'll do 
+                        #quarterX = (x2 - x1)/4, then x1 = x1 + quarterX, x2 = x2 - quarterX
+                        quarterX = (coordX2 - coordX2)/4
+                        coordX1 = coordX1 + quarterX
+                        coordX2 = coordX2 - quarterX
+                        
+                        quarterY = (coordY2 - coordY1)/4
+                        coordY1 = coordY1 + quarterY
+                        coordY2 = coordY2 - quarterY
+                        self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
                     self.canvas.pack()
-       
         
         if self.q.empty() == False:
             self.root.update()
             self.root.update_idletasks()
-        self.root.after(50,self.redraw())
+        
+        #this is a lambda function in an attempt to fix the infinite recursion issue
+        #not sure why using a lambda is supposed to fix this, but the stackoverflow
+        #says it should 
+        self.root.after(50, lambda: self.redraw())
         
 class Threader(threading.Thread):
 
