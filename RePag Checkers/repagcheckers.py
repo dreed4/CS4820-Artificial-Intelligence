@@ -55,24 +55,32 @@ def geninitcheckerboard ():
     
     return newboard
 
-def getminimaxscore(successor, prevscore):
-    blacks = successor.getcolorpieces("black")
-    reds = successor.getcolorpieces("red")
+def getminimaxscore(successor, prevscore, prevboard, currentcolor):
+    currentblacks = successor.getcolorpieces("black")
+    currentreds = successor.getcolorpieces("red")
+    previousblacks = prevboard.getcolorpieces("black")
+    previousreds = prevboard.getcolorpieces("red")
     
-    currentscore = len(blacks) - len(reds)
-    
+    if currentcolor == "black":
+        currentscore = len(currentblacks) - len(currentreds)
+        previousscore = len(previousblacks) - len(previousreds)
+    else:
+        currentscore = len(currentreds) - len(currentblacks)
+        previousscore = len(previousreds) - len(previousblacks)
     #current score - previous score
-    finalscore = currentscore - prevscore
+    
+    
+    finalscore = currentscore - previousscore
     
     return finalscore
 
-def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore, alpha, beta):
-    
+def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore, alpha, beta, prevboard):
+    #placeholder var
     if maxicolor == "black":
         mincolor = "red"
     elif maxicolor == "red":
         mincolor = "black"
-    successorscore = getminimaxscore(successor, prevscore)
+    successorscore = getminimaxscore(successor, prevscore, prevboard, mincolor)
     
     if successor.isgoal(mincolor) == True:
         return (successor, math.inf)
@@ -93,11 +101,11 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
     for s in successors:
         t2 = time.clock()
         totaltime =  t2 - starttime
-        sscore = getminimaxscore(s, successorscore)
+        sscore = getminimaxscore(s, successorscore, successor, mincolor)
         if totaltime >= maxtime:
             return (bestsuccessor, sscore)
-        
-        maxplayreturn = maxplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore,alpha, beta)
+        psuccessor = successor
+        maxplayreturn = maxplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore,alpha, beta, psuccessor)
         score = maxplayreturn[1]
         
         if score < beta:
@@ -114,8 +122,10 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         
     return (successor, bestscore)
         
-def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore, alpha, beta):
-    successorscore = getminimaxscore(successor, prevscore)
+def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore, alpha, beta, prevboard):
+    #placeholder variable
+   
+    successorscore = getminimaxscore(successor, prevscore, prevboard, maxicolor)
     if successor.isgoal(maxicolor) == True:
         return (successor, -math.inf)
     
@@ -138,14 +148,14 @@ def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscor
         #get sscore which will be pushed as the previous score when minplay called
         #s is the current successor
         #successorscore is the score of the parent successor
-        sscore = getminimaxscore(s, successorscore)
+        sscore = getminimaxscore(s, successorscore, successor, maxicolor)
         if totaltime >= maxtime:
             return (bestsuccessor, sscore)
         
         #set a
         
-        
-        minplayreturn = minplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore, alpha, beta)
+        psuccessor = successor
+        minplayreturn = minplay(s, depth+1, maxdepth, maxicolor, maxtime, starttime, sscore, alpha, beta, psuccessor)
         score = minplayreturn[1]
         if score > alpha:
             alpha = score
@@ -164,7 +174,7 @@ def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscor
 def minimax(node, maxdepth, maxicolor, maxtime, starttime):
     
     successors = node.getsuccessors(maxicolor)
-    nodescore = getminimaxscore(node, 0)
+    nodescore = getminimaxscore(node, 0, node, maxicolor)
     
     if len(successors)>0:
         bestsuccessor = successors[0]
@@ -179,7 +189,7 @@ def minimax(node, maxdepth, maxicolor, maxtime, starttime):
     beta = math.inf
     
     for successor in successors:
-        score = minplay(successor, depth+1, maxdepth, maxicolor, maxtime, starttime, nodescore, alpha, beta)[1]
+        score = minplay(successor, depth+1, maxdepth, maxicolor, maxtime, starttime, nodescore, alpha, beta, node)[1]
         if score > bestscore:
             bestsuccessor = successor
             bestscore = score
@@ -266,7 +276,7 @@ def checkersgame(q):
     
     rootnode = CheckerBoard(rootarry)
     
-    maxtime = 5
+    maxtime = 2
     
     blacksearchtype = id
     blackaitype = minimax
