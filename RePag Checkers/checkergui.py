@@ -1,63 +1,8 @@
 import tkinter as tk
-from itertools import product
 import threading
 import queue
-import time
 import repagcheckers
-
-class Board_wait():
-    def __init__(self,width,height,cellsize,arry):
-        threading.Thread.__init__(self)
-        self.width = width
-        self.height = height
-        self.cellsize = cellsize
-        self.arry = arry
-        
-        self.root = tk.Tk()
-        self.root.protocol("WM_DELETE_WINDOW", self.callback)
-        #self.canvas = tkinter.Canvas(self.root,width=self.width, height=self.height)
-        canvas = tk.Canvas(self.root,width=self.width, height=self.height)
-        canvas.pack()
-        self.canvas = canvas
-        
-        self.root.after(100,self.redraw())
-        
-        #self.root.mainloop()
-    def draw_rectangle(self, x1, y1, x2, y2, color):
-        self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline="black")
-        #pass
-    def draw_circle(self, x1, y1, x2, y2, color):
-        self.canvas.create_oval(x1, y1, x2, y2, fill=color, outline="black")
-    def setarry(self, arry):
-        self.arry = arry
-    def callback(self):
-        self.root.quit()
-    def redraw(self):
-        #spawn thread 
-        
-        
-        print("updating gui...")
-        for r in range(len(self.arry)):
-            for c in range(len(self.arry[0])):
-                coordX1 = (c * self.cellsize)
-                coordY1 = (r * self.cellsize)
-                coordX2 = coordX1 + self.cellsize
-                coordY2 = coordY1 + self.cellsize
-                
-                color = "white" if r%2 == c%2 else "black"
-                self.draw_rectangle(coordX1, coordY1, coordX2, coordY2, color)
-                
-                logicBoard = self.arry
-                cell = logicBoard[r][c]
-                if cell != 0:
-                    pawnColor = "blue" if cell <= 2  else "red"
-                    self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
-        self.canvas.pack()
-        self.root.update()
-        self.root.update_idletasks()
-        #self.root.after(0,self.redraw())
-        
-#==================================        
+     
 class Gui:
     def __init__(self,root, width,height,cellsize,arry, q):
         #threading.Thread.__init__(self)
@@ -134,53 +79,53 @@ class Gui:
         self.root.update()
         self.root.update_idletasks()
     def redraw(self):
-        
+        redrawit = False
         if self.q.empty() == False:
             self.arry = self.q.get(0)
-            #print("found something in queue")
-        
+            redrawit = True
         
         #print ("updating gui...")
-        for r in range(len(self.arry)):
-            for c in range(len(self.arry[0])):
-                coordX1 = (c * self.cellsize)
-                coordY1 = (r * self.cellsize)
-                coordX2 = coordX1 + self.cellsize
-                coordY2 = coordY1 + self.cellsize
-                
-                color = "white" if r%2 == c%2 else "black"
-                self.draw_rectangle(coordX1, coordY1, coordX2, coordY2, color)
-                
-                logicBoard = self.arry
+        if redrawit == True:
+            for r in range(len(self.arry)):
+                for c in range(len(self.arry[0])):
+                    coordX1 = (c * self.cellsize)
+                    coordY1 = (r * self.cellsize)
+                    coordX2 = coordX1 + self.cellsize
+                    coordY2 = coordY1 + self.cellsize
                     
-                cell = logicBoard[r][c]
-                if cell != 0:
-                    kingme = False
-                    if cell <= 2:
-                        pawnColor = "blue"
-                        if cell == 2:
-                            #then it's a king
-                            kingme = True
-                    else:
-                        pawnColor = "red"
-                        if cell == 4:
-                            #then it's a king
-                            kingme = True
-                    self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
-                    if kingme == True:
-                        #sort gui out for kinging things
-                        #we need the circle to be a bit smaller than the first
-                        #if we want 50% of the size we'll do 
-                        #quarterX = (x2 - x1)/4, then x1 = x1 + quarterX, x2 = x2 - quarterX
-                        quarterX = (coordX2 - coordX2)/4
-                        coordX1 = coordX1 + quarterX
-                        coordX2 = coordX2 - quarterX
+                    color = "white" if r%2 == c%2 else "black"
+                    self.draw_rectangle(coordX1, coordY1, coordX2, coordY2, color)
+                    
+                    logicBoard = self.arry
                         
-                        quarterY = (coordY2 - coordY1)/4
-                        coordY1 = coordY1 + quarterY
-                        coordY2 = coordY2 - quarterY
+                    cell = logicBoard[r][c]
+                    if cell != 0:
+                        kingme = False
+                        if cell <= 2:
+                            pawnColor = "blue"
+                            if cell == 2:
+                                #then it's a king
+                                kingme = True
+                        else:
+                            pawnColor = "red"
+                            if cell == 4:
+                                #then it's a king
+                                kingme = True
                         self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
-                    self.canvas.pack()
+                        if kingme == True:
+                            #sort gui out for kinging things
+                            #we need the circle to be a bit smaller than the first
+                            #if we want 50% of the size we'll do 
+                            #quarterX = (x2 - x1)/4, then x1 = x1 + quarterX, x2 = x2 - quarterX
+                            quarterX = (coordX2 - coordX2)/4
+                            coordX1 = coordX1 + quarterX
+                            coordX2 = coordX2 - quarterX
+                            
+                            quarterY = (coordY2 - coordY1)/4
+                            coordY1 = coordY1 + quarterY
+                            coordY2 = coordY2 - quarterY
+                            self.draw_circle(coordX1, coordY1, coordX2, coordY2, pawnColor)
+                        self.canvas.pack()
         
         if self.q.empty() == False:
             self.root.update()

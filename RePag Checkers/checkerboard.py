@@ -42,18 +42,35 @@ class CheckerBoard(object):
         #get all pieces of specified color
         colorpieces = self.getcolorpieces(color)
         #get all moves for each piece
+        allmoves = []
         boards = []
+        wasjump = False
         for piece in colorpieces:
-            movesarry = self.getmoves(piece)
-            
+            movetup = self.getmoves(piece)
+            if movetup[1] == True:
+                wasjump = True
             #generate boards out of all moves
-            for m in movesarry:
-                boards.append(m)
+            for board in movetup[0]:
+                allmoves.append((board, movetup[1]))        
+        #make boards
+        #if there was a jump, remove all non-jumps
+        if wasjump == True:
+            for move in allmoves:
+                if move[1] == True:
+                    boards.append(move[0])
+        #else, append all moves to boards
+        else:
+            for move in allmoves:
+                boards.append(move[0])
         return boards
     
-    def getalljumps(self, piece, boards=None):
+    def jumpsdriver(self, piece):
+        alljumps = self.getmaxdepthjumps(self, piece)
         
-        jumps = []
+        return alljumps
+    
+    def getalljumpsboards(self, piece):
+        
         row = piece[0]
         column = piece[1]
         #set color of current piece
@@ -113,10 +130,10 @@ class CheckerBoard(object):
             elif c > cols or c < 0:
                 toremove.append(m)
         
-        #remove impossible or illegal
+        #remove out-of-bounds moves
         for rem in toremove:
             potentialmoves.remove(rem)
-        
+        jumps = []
         for m in potentialmoves:
             r = m[0]
             c = m[1]
@@ -138,38 +155,37 @@ class CheckerBoard(object):
                 
                 finalcoord = [finalrow, finalcol]
                 
-                
-                
                 #check if jump will be in bounds
-                if finalrow < 7 and finalrow > 0 and finalcol < 7 and finalcol > 0:
+                if finalrow <= 7 and finalrow >= 0 and finalcol <= 7 and finalcol >= 0:
                     #check if jump space is empty
                     if self.board[finalrow][finalcol] == 0:
                         jumps.append(finalcoord)
-                    
-        #loop through all jumps, create new boards
-        jumpedstates = []
-        
-        #for all jumps
-            #move piece
-            
-            #get all jumps for new board
-            
-            #erase old board if it had a new jump
+     
         tmpjumps = []
         for jumpcoord in jumps:
-            newobj = self.movepiece(piece, jumpcoord, True)
-            tmpjumps.append((newobj,jumpcoord))
-            
-        for jump in tmpjumps:
-            newjumps = jump[0].getalljumps(jump[1])
-            if len(newjumps) > 0:
-                jumpedstates.extend(newjumps)
-            else:
-                jumpedstates.append(jump[0])
-            
+            newboard = self.movepiece(piece, jumpcoord, True)
+            tmpjumps.append((newboard,jumpcoord))
+           
+        return tmpjumps
+    def getmaxdepthjumps(self, board, coord):
+        
+        alljumps = self.getalljumpsboards(coord)
+        
+        #if there were, indeed, more jumps, recurse
+        leafjumps = []
+        if len(alljumps) > 0:
+            #for all jumps in morejumps, recurse
+            for j in alljumps:
+                board = j[0]
+                jcoord = j[1]
+                leafjumps.extend(self.getmaxdepthjumps(board, jcoord)) 
+        #else don't recurse, just return the one
+        else:
+            return ([(board, coord)])
+    
         
         
-        return jumpedstates
+        return leafjumps
     def getmoves(self, piece):
         
         # need to determine a standard for the "description" of a piece
@@ -189,8 +205,17 @@ class CheckerBoard(object):
             king = False
         
         #get all the darn jumps
-        jumps = self.getalljumps(piece)
-        
+        #check if there are jumps
+        if len(self.getalljumpsboards(piece)) > 0:
+            board = self
+            jumptumplearry = self.jumpsdriver(piece)
+
+            jumps = []
+            for tup in jumptumplearry:
+                jumps.append(tup[0])
+        else:
+            jumps = []
+            
         potentialmoves = []
         #if black
         if color == "black":
@@ -258,12 +283,13 @@ class CheckerBoard(object):
             moveboards.append(board)
         #returns True with jumps, False with regular moves
         if len(jumps) > 0:
-            return (jumps)
+            return ((jumps, True))
         else:
-            return (moveboards)
+            return ((moveboards, False))
     def movepiece(self, piece, newcoord, jump):
         piecerow=piece[0]
         piececol=piece[1]
+        color = "none"
         if self.board[piecerow][piececol] == 1 or self.board[piecerow][piececol] == 2:
             color = "black"
         elif self.board[piecerow][piececol] == 3 or self.board[piecerow][piececol] == 4:
@@ -284,36 +310,29 @@ class CheckerBoard(object):
             jpiececol = int((newcol - piececol)/2 + piececol)
             newboard[jpiecerow][jpiececol] = 0
         else:
-            #turn to king or not????????
-            if color == "red":
-                if newrow == 0:
-                    #then we wuz kangz
-                    newboard[newrow][newcol] = 4
-                else:
-                    #we wuznt kangz
-                    newboard[newrow][newcol] = oldboard[piecerow][piececol]
-            elif color == "black":
-                if newrow == 7:
-                    #then we wuz kangz
-                    newboard[newrow][newcol] = 2
-                else:
-                    #we wuznt kangz
-                    newboard[newrow][newcol] = oldboard[piecerow][piececol]
-                    
+            newboard[newrow][newcol] = oldboard[piecerow][piececol]       
             newboard[piecerow][piececol] = 0
             
-        
+        #kingme
+        if color == "red":
+            if newrow == 0:
+                #then we wuz kangz
+                newboard[newrow][newcol] = 4
+        elif color == "black":
+            if newrow == 7:
+                #then we wuz kangz
+                newboard[newrow][newcol] = 2
+                
         newboardobj = CheckerBoard(newboard)
         return newboardobj
     def getwinner(self):
         blacks = self.getcolorpieces("black")
         reds = self.getcolorpieces("red")
-        if self.isgoal() == True:
-            if len(blacks) > 0:
-                return ("black")
-            else:
-                return ("red")
-    def isgoal(self):
+        if len(blacks) > len(reds):
+            return ("black")
+        else:
+            return ("red")
+    def isgoal(self, currentplayer):
         #find out if this board is a goal
         #if either color is not on board, it is a goal with opposite color as winner
         blacks = self.getcolorpieces("black")
@@ -331,9 +350,9 @@ class CheckerBoard(object):
             for b in blacks:
                 blackmoves.extend(self.getmoves(b))
                 
-            if len(redmoves) == 0:
+            if len(redmoves) == 0 and currentplayer == "red":
                 return True
-            elif len(blackmoves) == 0:
+            elif len(blackmoves) == 0 and currentplayer == "black":
                 return True
             else:
                 return False

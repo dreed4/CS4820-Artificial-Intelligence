@@ -74,7 +74,7 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         mincolor = "black"
     successorscore = getminimaxscore(successor, prevscore)
     
-    if successor.isgoal() == True:
+    if successor.isgoal(mincolor) == True:
         return (successor, math.inf)
     
     if depth == maxdepth:
@@ -116,7 +116,7 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         
 def maxplay (successor, depth, maxdepth, maxicolor, maxtime, starttime, prevscore, alpha, beta):
     successorscore = getminimaxscore(successor, prevscore)
-    if successor.isgoal() == True:
+    if successor.isgoal(maxicolor) == True:
         return (successor, -math.inf)
     
     if depth == maxdepth:
@@ -230,7 +230,7 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
         board.printboard()
         print("")
         
-        if board.isgoal() == True:
+        if board.isgoal(currentplayer) == True:
             goal = True
             winner = board.getwinner()
             stillplaying = False
@@ -247,26 +247,7 @@ def test ():
         print("")
         s.printboard()
     
-def initgui():
-    size = 40
-    #(width,height,cellsize)
-    #board = Board_Threaded(400,400,size)
-    arry = [[0,1,0,1,0,1,0,1],
-            [1,0,1,0,1,0,1,0],
-            [0,1,0,1,0,1,0,1],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [3,0,3,0,3,0,3,0],
-            [0,3,0,3,0,3,0,3],
-            [3,0,3,0,3,0,3,0]]
-    #board = BetterBoard(400,400,size, arry)
-    board = Board_wait(400,400,size,arry)
-    
-    
-    
-    #for (i, j) in product(range(8), range(8)):
-        
-    return board   
+  
     
     
 def checkersgame(q):
@@ -285,13 +266,13 @@ def checkersgame(q):
     
     rootnode = CheckerBoard(rootarry)
     
-    maxtime = 2
+    maxtime = 5
     
     blacksearchtype = id
     blackaitype = minimax
     redsearchtype = id
     redaitype = minimax
-    maxdepth = 20
+    maxdepth = 10000000
     endgame = graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,q)
     finalboard = endgame[0]
     winner = endgame[1]
