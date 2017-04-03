@@ -9,7 +9,7 @@ class Gui:
         self.width = width
         self.height = height
         self.cellsize = cellsize
-        
+        self.arry = arry
         self.drawnonce = 0
         self.root = root
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
@@ -40,7 +40,6 @@ class Gui:
         self.root.quit()
     
     def initdraw(self):
-        print("called initdraw")
         
         
         for r in range(len(self.arry)):
@@ -138,20 +137,20 @@ class Gui:
         
 class Threader(threading.Thread):
 
-    def __init__(self, q):
+    def __init__(self, q, rootarry):
         threading.Thread.__init__(self)
         self.daemon = True
         self.q = q
         self.start()
-        
+        self.rootarry = rootarry
     def run(self):
-        repagcheckers.checkersgame(self.q)
+        repagcheckers.checkersgame(self.q, rootarry)
         
 if __name__ == "__main__":
     width = 400
     height = 400
     cellsize = 40
-    arry = [[0,1,0,1,0,1,0,1],
+    rootarry = [[0,1,0,1,0,1,0,1],
             [1,0,1,0,1,0,1,0],
             [0,1,0,1,0,1,0,1],
             [0,0,0,0,0,0,0,0],
@@ -160,14 +159,22 @@ if __name__ == "__main__":
             [0,3,0,3,0,3,0,3],
             [3,0,3,0,3,0,3,0]]
     
+    teetarry = [[0,0,0,0,0,0,0,0],
+                [0,0,1,0,1,0,0,0],
+                [0,0,0,3,0,0,0,0],
+                [0,0,0,0,0,0,0,0],
+                [0,3,0,0,0,3,0,0],
+                [0,0,0,0,0,0,0,0],
+                [0,0,0,3,0,3,0,0],
+                [0,0,0,0,0,0,0,0]]
     
     root = tk.Tk()
     root.title("RePag Checkers")
     q = queue.Queue()
     
-    Threader(q)
+    Threader(q, rootarry)
     
-    my_gui = Gui(root, width, height, cellsize, arry, q)
+    my_gui = Gui(root, width, height, cellsize, rootarry, q)
     
     root.mainloop()
     

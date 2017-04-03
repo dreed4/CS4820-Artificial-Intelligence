@@ -62,6 +62,7 @@ class CheckerBoard(object):
         else:
             for move in allmoves:
                 boards.append(move[0])
+                
         return boards
     
     def jumpsdriver(self, piece):
@@ -167,9 +168,12 @@ class CheckerBoard(object):
             tmpjumps.append((newboard,jumpcoord))
            
         return tmpjumps
+    
+    
     def getmaxdepthjumps(self, board, coord):
         
-        alljumps = self.getalljumpsboards(coord)
+        #alljumps = self.getalljumpsboards(coord)
+        alljumps = board.getalljumpsboards(coord)
         
         #if there were, indeed, more jumps, recurse
         leafjumps = []
@@ -335,6 +339,7 @@ class CheckerBoard(object):
     def isgoal(self, currentplayer):
         #find out if this board is a goal
         #if either color is not on board, it is a goal with opposite color as winner
+        
         blacks = self.getcolorpieces("black")
         reds = self.getcolorpieces("red")
         
@@ -342,6 +347,7 @@ class CheckerBoard(object):
             return True
         #else we need to check and see if either team has pieces that can't move
         else:
+            
             redmoves = []
             for r in reds:
                 redmoves.extend(self.getmoves(r))
@@ -349,10 +355,11 @@ class CheckerBoard(object):
             blackmoves = []
             for b in blacks:
                 blackmoves.extend(self.getmoves(b))
-                
-            if len(redmoves) == 0 and currentplayer == "red":
-                return True
-            elif len(blackmoves) == 0 and currentplayer == "black":
-                return True
-            else:
-                return False
+            
+            #if len(redmoves[0]) == 0 or len(blackmoves[0]) == 0:
+            #    if len(redmoves[0]) == 0 and currentplayer == "red":
+            #        return True
+            #    elif len(blackmoves[0]) == 0 and currentplayer == "black":
+            #        return True
+            #    else:
+            #        return False

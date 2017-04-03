@@ -97,6 +97,8 @@ def minplay (successor, depth, maxdepth, maxicolor, maxtime, starttime,prevscore
         bestsuccessor = successors[0]
     else:
         return (successor, math.inf)
+    t2 = time.clock()
+    totaltime =  t2 - starttime
     
     for s in successors:
         t2 = time.clock()
@@ -176,8 +178,10 @@ def minimax(node, maxdepth, maxicolor, maxtime, starttime):
     successors = node.getsuccessors(maxicolor)
     nodescore = getminimaxscore(node, 0, node, maxicolor)
     
+    
     if len(successors)>0:
         bestsuccessor = successors[0]
+        
     else:
         return node
     
@@ -201,7 +205,6 @@ def minimax(node, maxdepth, maxicolor, maxtime, starttime):
 def id(board, maxdepth, maxicolor, aitype, maxtime):
     t1 = time.clock()
     depth = 0
-    boards = board
     bestboard = board
     while(depth<=maxdepth):
         t2 = time.clock()
@@ -213,39 +216,44 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
         
     
     return bestboard
-def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtime,q):
+def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtimeblack,maxtimered,q):
     #first move player
     currentplayer = "black"
     board = rootnode
     q.put(board.board)
     goal = False
     stillplaying = True
+    numturns = 0
+    
     #loop to iterate back and forth for each player
     while (stillplaying == True):
         #call search function for current player
+        if board.isgoal(currentplayer) == True:
+            print("we found a goal")
+            goal = True
+            winner = board.getwinner()
+            stillplaying = False
         print(currentplayer, " moving..")
         if currentplayer == "black":
             maxicolor = "black"
-            board = blacksearchtype(board, maxdepth, maxicolor, blackaitype,maxtime)
+            board = blacksearchtype(board, maxdepth, maxicolor, blackaitype,maxtimeblack)
             currentplayer = "red"
         else:
             maxicolor = "red"
-            board = redsearchtype(board, maxdepth, maxicolor, redaitype,maxtime)
+            board = redsearchtype(board, maxdepth, maxicolor, redaitype,maxtimered)
             currentplayer = "black"
         
         #update the gui queue here
         q.put(board.board)
         #=============
-        
+        print("move made: ")
         board.printboard()
         print("")
         
-        if board.isgoal(currentplayer) == True:
-            goal = True
-            winner = board.getwinner()
-            stillplaying = False
+        numturns += 1
+        
             
-    return (board, winner)
+    return (board, winner, numturns)
     
 def test ():
     newboard = geninitcheckerboard()
@@ -260,35 +268,47 @@ def test ():
   
     
     
-def checkersgame(q):
+def checkersgame(q, rootarry):
     #init gui stuff first
    
     #guiboard = initgui()
     
-    rootarry = [[0,1,0,1,0,1,0,1],
-                [1,0,1,0,1,0,1,0],
-                [0,1,0,1,0,1,0,1],
-                [0,0,0,0,0,0,0,0],
-                [0,0,0,0,0,0,0,0],
-                [3,0,3,0,3,0,3,0],
-                [0,3,0,3,0,3,0,3],
-                [3,0,3,0,3,0,3,0]]
+    #rootarry = [[0,1,0,1,0,1,0,1],
+    #            [1,0,1,0,1,0,1,0],
+    #            [0,1,0,1,0,1,0,1],
+    #            [0,0,0,0,0,0,0,0],
+    #            [0,0,0,0,0,0,0,0],
+    #            [3,0,3,0,3,0,3,0],
+    #            [0,3,0,3,0,3,0,3],
+    #            [3,0,3,0,3,0,3,0]]
+    
+    
     
     rootnode = CheckerBoard(rootarry)
-    
-    maxtime = 2
+    rootnode.printboard()
+    print("")
+    maxtimeperturnblack = 2
+    maxtimeperturnred = 5
     
     blacksearchtype = id
     blackaitype = minimax
     redsearchtype = id
     redaitype = minimax
     maxdepth = 10000000
-    endgame = graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtime,q)
+    t1 = time.clock()
+    endgame = graphsearch(rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth, maxtimeperturnblack, maxtimeperturnred, q)
+    t2 = time.clock()
+    
+    #time the whole game took
+    totaltime = t2-t1
+    
     finalboard = endgame[0]
     winner = endgame[1]
-    
+    numturns = endgame[2]
     print("Game is over. The winner is ", winner, " and the final board configuration is: ")
     finalboard.printboard()
+    print("Number of turns: ", numturns)
+    print("Total time taken (seconds): ", totaltime)
 #print("calling repagcheckers file outside")
 #checkersgame(q=None)
     
