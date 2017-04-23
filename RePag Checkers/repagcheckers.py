@@ -218,7 +218,7 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
     return bestboard
 def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtimeblack,maxtimered,q):
     #first move player
-    currentplayer = "black"
+    currentplayer = "red"
     board = rootnode
     q.put(board.board)
     goal = False
@@ -288,7 +288,7 @@ def checkersgame(q, rootarry):
     rootnode.printboard()
     print("")
     maxtimeperturnblack = 2
-    maxtimeperturnred = 5
+    maxtimeperturnred = 2
     
     blacksearchtype = id
     blackaitype = minimax
