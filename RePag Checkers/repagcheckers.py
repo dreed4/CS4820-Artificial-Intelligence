@@ -9,11 +9,6 @@ import math
 import time
 from checkergui import *
 import queue
-def evalutatesuccessors (evalfn):
-    print()
-    
-    
-    
     
 # Generate new board
 # 0: empty
@@ -56,6 +51,73 @@ def geninitcheckerboard ():
     return newboard
 
 def getminimaxscore(successor, prevscore, prevboard, currentcolor):
+    #lists of pieces of each color on board
+    blacks = successor.getcolorpieces("black")
+    reds = successor.getcolorpieces("red")
+    previousblacks = prevboard.getcolorpieces("black")
+    previousreds = prevboard.getcolorpieces("red")
+    
+    #do color v color heuristic
+    if currentcolor == "black":
+        colvcol = len(blacks) - len(reds)
+        currentpieces = blacks
+        oppcolorpieces = reds
+        oppcolor = "red"
+    else:
+        colvcol = len(reds) - len(blacks)
+        currentpieces = reds
+        oppcolorpieces = blacks
+        oppcolor = "black"
+    #jump priority heuristic        
+    if currentcolor == "black":
+        prevcolvcol = len(previousblacks) - len(previousreds)
+    else:
+        prevcolvcol = len(previousreds) - len(previousblacks)
+    
+    jpriority = colvcol - prevcolvcol
+    
+    #board safety
+    jboards = []
+    for p in oppcolorpieces:
+        jboards.extend(successor.getmaxdepthjumps(successor, p))
+    
+    dangerscores = []    
+    for jboard in jboards:
+        b = jboard[0]
+        amnt = len(b.getcolorpieces(currentcolor))
+        dangerscores.append(colvcol - amnt)
+    
+    biggestdscore = 0
+    for dscore in dangerscores:
+        if dscore > biggestdscore:
+            biggestdscore = dscore
+            
+    totaldangerscore = biggestdscore/len(currentpieces)*100
+    #max for any is going to be 100
+    
+    #for colvcol, max would be 12
+    colvcolpercentage = colvcol/12*100
+    
+    jprioritypercentage = jpriority/9*100
+    
+    colvcolwithmult = colvcolpercentage*0.1
+    jprioritywithmult = jprioritypercentage*0.9
+    
+    finalscore = colvcolwithmult + jprioritywithmult - totaldangerscore
+    
+    return finalscore
+def getminimaxscore_single_old(successor, prevscore, prevboard, currentcolor):
+    blacks = successor.getcolorpieces("black")
+    reds = successor.getcolorpieces("red")
+    
+    if currentcolor == "black":
+        currentscore = len(blacks) - len(reds)
+    else:
+        currentscore = len(reds) - len(blacks)
+        
+    return currentscore
+    
+def getminimaxscore_old(successor, prevscore, prevboard, currentcolor):
     currentblacks = successor.getcolorpieces("black")
     currentreds = successor.getcolorpieces("red")
     previousblacks = prevboard.getcolorpieces("black")
@@ -212,13 +274,13 @@ def id(board, maxdepth, maxicolor, aitype, maxtime):
         if totalt>=maxtime:
             break
         depth += 1
-        bestboard = aitype(board, depth, maxicolor, maxtime, t1)
         
-    
+        bestboard = aitype(board, depth, maxicolor, maxtime, t1)
+            
     return bestboard
 def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaitype, maxdepth,maxtimeblack,maxtimered,q):
     #first move player
-    currentplayer = "red"
+    currentplayer = "black"
     board = rootnode
     q.put(board.board)
     goal = False
@@ -287,8 +349,8 @@ def checkersgame(q, rootarry):
     rootnode = CheckerBoard(rootarry)
     rootnode.printboard()
     print("")
-    maxtimeperturnblack = 2
-    maxtimeperturnred = 2
+    maxtimeperturnblack = 3
+    maxtimeperturnred = 3
     
     blacksearchtype = id
     blackaitype = minimax
