@@ -21,7 +21,28 @@ class CheckerBoard(object):
         
         for row in range(rows):
             print(self.board[row])
-            
+    def getcolorpieceswithkings(self, color):
+        arry = self.board
+        rows = len(self.board)
+        cols = len(self.board[0])
+        piecesnormal = []
+        pieceskings = []
+        
+        for row in range(rows):
+            for col in range(cols):
+                if color == "black":
+                    if arry[row][col] == 1:
+                        piecesnormal.append([row,col])
+                    elif arry[row][col] == 2:
+                        pieceskings.append([row, col])
+                elif color == "red":
+                    if arry[row][col] == 3:
+                        piecesnormal.append([row,col])
+                    elif arry[row][col] == 4:
+                        pieceskings.append([row, col])
+        piecesall = (piecesnormal, pieceskings)
+        
+        return piecesall
     def getcolorpieces(self, color):
         arry = self.board
         rows = len(self.board)
@@ -40,7 +61,10 @@ class CheckerBoard(object):
     
     def getsuccessors(self, color):
         #get all pieces of specified color
-        colorpieces = self.getcolorpieces(color)
+        colorpiecestuple = self.getcolorpieceswithkings(color)
+        
+        colorpieces = colorpiecestuple[1]
+        colorpieces.extend(colorpiecestuple[0])
         #get all moves for each piece
         allmoves = []
         boards = []
