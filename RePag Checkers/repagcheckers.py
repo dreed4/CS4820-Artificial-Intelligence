@@ -494,9 +494,8 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
         board.printboard()
         print("")
         print("Time taken for move: ", (t2-t1))
-        
         numturns += 1
-        
+        print("Turn Number: ", numturns)
             
     return (board, winner, numturns)
     
