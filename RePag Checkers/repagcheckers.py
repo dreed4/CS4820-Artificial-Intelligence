@@ -57,7 +57,7 @@ def getminimaxscore(successor, prevscore, prevboard, currentcolor):
     red_dojumpscore = True
     red_dopositionalscore = True
     
-    black_docolvcol = False
+    black_docolvcol = True
     black_dodangerscore = True
     black_dojumpscore = True
     black_dopositionalscore = True
@@ -499,9 +499,22 @@ def graphsearch (rootnode, blacksearchtype, blackaitype, redsearchtype, redaityp
             
     return (board, winner, numturns)
     
-
+def humanplay(node, maxdepth, maxicolor, maxtime, starttime):
+    #get which piece to move
     
-def checkersgame(q, rootarry):
+    #move piece gen player board
+    
+    #get all successor of previous board
+    
+    #check to see that player is in list of successors
+    
+    #as long as it is in the list of successors, we can return playerboard
+    
+    
+    pass
+    #return playerboard
+
+def checkersgame(q, rootarry, pmvq, checkmvq):
     #init gui stuff first
    
     #guiboard = initgui()
@@ -520,8 +533,8 @@ def checkersgame(q, rootarry):
     rootnode = CheckerBoard(rootarry)
     rootnode.printboard()
     print("")
-    maxtimeperturnblack = 6
-    maxtimeperturnred = 6
+    maxtimeperturnblack = 8
+    maxtimeperturnred = 8
     
     blacksearchtype = id
     blackaitype = minimax

@@ -2,7 +2,43 @@ import tkinter as tk
 import threading
 import queue
 import repagcheckers
-     
+class Gui_Move(object):
+    def __init__(self):
+        self.x1 = -1
+        self.y1 = -1
+        self.r1 = -1
+        self.c1 = -1
+        
+        self.x2 = -1
+        self.y2 = -1
+        self.r2 = -1
+        self.c2 = -1
+    def resetmove(self):
+        print("resetmove called")
+        self.x1 = -1
+        self.y1 = -1
+        self.r1 = -1
+        self.c1 = -1
+        
+        self.x2 = -1
+        self.y2 = -1
+        self.r2 = -1
+        self.c2 = -1
+        
+    def set(self, x, y):
+        if self.x1 == -1:
+            self.x1 = x
+            self.y1 = y
+            self.r1 = int(y/40) + 1
+            self.c1 = int(x/40) + 1
+        elif self.x2 == -1:
+            self.x2 = x
+            self.y2 = y
+            self.r2 = int(y/40) + 1
+            self.c2 = int(x/40) + 1
+        else:
+            
+            self.resetmove()
 class Gui:
     def __init__(self,root, width,height,cellsize,arry, q):
         #threading.Thread.__init__(self)
@@ -11,15 +47,21 @@ class Gui:
         self.cellsize = cellsize
         self.arry = arry
         self.drawnonce = 0
+        self.guimove = Gui_Move()
+        
         self.root = root
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
         
+       
         
         self.q = q
         if self.q.empty() == False:
             self.arry = self.q.get(0)
         #self.canvas = tkinter.Canvas(self.root,width=self.width, height=self.height)
         canvas = tk.Canvas(self.root,width=self.width, height=self.height)
+        canvas.bind("<Button-1>", self.clickcallback)
+        b = tk.Button(self.root, text="Do Move", command=self.domovecallback)
+        b.pack()
         canvas.pack()
         self.canvas = canvas
         #self.root.after(100,self.eachloop())
@@ -38,7 +80,18 @@ class Gui:
         self.arry = arry
     def callback(self):
         self.root.quit()
-    
+        
+    def clickcallback(self, event):
+        x = event.x
+        y = event.y
+        self.guimove.set(x, y)
+        print("GuiMove square 1: ", self.guimove.r1, self.guimove.c1)
+        print("GuiMove square 2: ", self.guimove.r2, self.guimove.c2)
+        print()
+    def domovecallback(self):
+        
+        print("Do move clicked!")
+        self.guimove.resetmove()
     def initdraw(self):
         
         
@@ -137,14 +190,17 @@ class Gui:
         
 class Threader(threading.Thread):
 
-    def __init__(self, q, rootarry):
+    def __init__(self, q, rootarry, pmvq, checkmvq):
         threading.Thread.__init__(self)
         self.daemon = True
         self.q = q
+        self.pmvq = pmvq
+        self.checkmvq = checkmvq
+        
         self.start()
         self.rootarry = rootarry
     def run(self):
-        repagcheckers.checkersgame(self.q, rootarry)
+        repagcheckers.checkersgame(self.q, rootarry, pmvq, checkmvq)
         
 if __name__ == "__main__":
     width = 400
@@ -172,7 +228,12 @@ if __name__ == "__main__":
     root.title("RePag Checkers")
     q = queue.Queue()
     
-    Threader(q, rootarry)
+    #playermove queue
+    pmvq = queue.Queue
+    #check playermove queue
+    checkmvq = queue.Queue
+    
+    Threader(q, rootarry, pmvq, checkmvq)
     
     my_gui = Gui(root, width, height, cellsize, rootarry, q)
     
